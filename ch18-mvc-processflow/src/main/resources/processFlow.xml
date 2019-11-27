@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+
+
+
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="suffix" value=".jsp"/>
+        <property name="prefix" value="WEB-INF/jsp/"/>
+    </bean>
+
+
+    <bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+        <property name="mappings">
+            <value>
+                /first.htm=firstController
+                /second=secondController
+            </value>
+        </property>
+    </bean>
+
+    <bean id="firstController"
+          class="controller.FirstController" />
+
+    <bean id="secondController"
+          class="controller.SecondController" />
+
+
+    <!--
+    SimpleUrlHandlerMapping和SimpleControllerHandlerAdapter这两个类
+    + DispatcherServlet的doDispatch方法是研究spring mvc的好的入口点
+
+整个mvc执行流程可以看DispatcherServlet的doDispatch方法
+具体流程如下:
+1.浏览器请求一个地址
+2.DispatcherServlet收到这个请求地址
+3.DispatcherServlet就交给HandlerMapping去找一个对应的Handler
+这个handler就是我们自己写的后端控制器
+4.控制器的执行,不是写死的.因为控制器的种类有很多,比如类上面
+加@Controller是一个控制器,类实现Controller接口也是一个控制器
+所以DispatcherServlet是无法预知各种各样的控制器,那么怎么执行控制器就称为一个
+5.依据当前的控制器,去找对应的HandlerAdapter,看看是否有HandlerAdapter可以
+执行这个Handler,如果有,就利用当前找到的HandlerAdapter去执行控制器方法
+可以去看SimpleControllerHandlerAdapter类的源代码
+6.HandlerAdapter就开始执行,HandlerAdapter的执行其实是调用Handler(后端控制器)
+的相关方法去执行,返回一个ModelAndView
+7.依据ModelAndView,可以得到一个视图名
+8.依据视图名,交给某一个合适的视图解析器,去解析称一个View对象
+9.依据视图对象的render(呈现)
+10.比如有一个视图对象InternalResourceView,他就会调用Request的forward来
+把找到的jsp视图对象转发
+
+
+    -->
+</beans>

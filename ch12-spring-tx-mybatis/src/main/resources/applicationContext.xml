@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+
+
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="username" value="root"/>
+        <property name="password" value="root"/>
+        <property name="url" value="jdbc:mysql://localhost:3306/demo"/>
+    </bean>
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"></property>
+        <property name="mapperLocations" value="classpath*:*Mapper.xml"/>
+    </bean>
+
+    <mybatis:scan base-package="com.dao" />
+
+    <bean id="manager" class="com.service.XXXManager" autowire="byType"></bean>
+
+
+    <!--
+        下面就是事务整合配置
+        当mybatis与spring进行整合的时候,它内部有一个异常翻译机制,就是把mybatis的异常全部翻译为spring的DataAccessException异常
+        而DataAccessException是一个运行时异常
+    -->
+    <!--事务管理器用的dataSource必须与sqlSessionFactory一样(与mybatis整合时)-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+
+    <tx:advice id="txAdvisor">
+
+        <tx:attributes>
+            <tx:method name="get*" read-only="true"/>
+            <tx:method name="*"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <aop:config>
+        <aop:pointcut id="servicePointcut"
+                      expression="execution(* com.service..*.*(..))"/>
+
+        <aop:advisor advice-ref="txAdvisor" pointcut-ref="servicePointcut"/>
+    </aop:config>
+</beans>
+
+
+<!--
+    作业:
+    1.创建2个结构一模一样的表,用来模拟把历史数据迁移到备份表
+    2.还写一个方法用来显示原始表的所有信息,要求分页
+    3.web项目
+
+
+
+-->

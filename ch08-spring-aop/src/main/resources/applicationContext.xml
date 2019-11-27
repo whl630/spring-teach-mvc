@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+
+
+    <bean id="log" class="com.LogImpl"/>
+
+    <bean id="employeeService" class="com.service.EmployeeServiceImpl"/>
+
+    <bean id="deptService" class="com.service.DeptServiceImpl"/>
+
+    <!--
+    proxy-target-class的作用:
+    默认情况,spring生成动态代理,会考虑被代理对象是否实现有接口
+    如果有,就利用jdk的动态代理技术来做,生成的代理类,不是目标类型的子类
+
+    如果目标没有实现接口,就只能用cglib创建动态代理,是一种建立子类的方式来实现
+
+    所以你可以通过设定proxy-target-class(代理目标类)为true,就是让spring不管
+    你有没有实现接口,都统一用cglib子类的形式来创建动态代理类
+
+    -->
+    <aop:config proxy-target-class="true">
+        <!--
+
+        Aspect:切面
+        pointcut:切点
+
+        总目标:就是把Logimpl的before方法糅合到EmployeeServiceImpl的两个方法执行之前
+
+        有这么几个问题要解决
+        1.如果找到业务类的insert,update方法?
+        2.谁糅合到谁里去.
+
+        aop的几个术语
+        1.切面(aspect):案例中指的就是LogImpl这个类
+        2.切点(pointcut):它也称为切点表达式,目的是描述符合条件的方法
+        3.目标(target):就是案例中的EmployeeServiceImpl对象
+        4.连接点(join point):就是目标对象中的insert,update方法
+        5.通知(advice):就是切面类中的beforeXXX这个方法
+        6.aop代理(aopProxy):spring aop的实现就是靠代理来做到的,默认利用jdk代理和cglib代理
+          来实现
+        7.织入(weaving):是个动词,表示把切面类的通知与目标对象连接点糅合在一起的过程就叫织入
+
+        aop:aspect Oriented programming:
+        -->
+
+        <!--这是切面类的配置-->
+        <aop:aspect id="logAspect" ref="log">
+            <!--这是切点表达式的配置-->
+            <aop:pointcut id="myPointcut" expression="execution(* com.service.*.*())"/>
+            <!--before的通知,主要用来确定当前这个切面类的什么方法在什么时候切入到
+            切点表达式指向的方法里面.
+            -->
+
+
+            <aop:before method="beforeXXX"
+                        pointcut-ref="myPointcut"></aop:before>
+        </aop:aspect>
+
+
+        <!--
+           作业:在mybatis与spring-pagehelper整合的基础上
+           给业务类添加一个日志功能(开始执行),通过aop
+
+           默写的内容
+           1.mybatis-config文件
+           2.applicationcontext.xml
+           3.dao接口
+           4.业务类
+           5.日志类
+           6.mapper文件中的sql语句
+
+
+
+
+        -->
+    </aop:config>
+</beans>

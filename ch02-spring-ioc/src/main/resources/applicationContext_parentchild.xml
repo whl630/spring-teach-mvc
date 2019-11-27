@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:c="http://www.springframework.org/schema/c"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+<!--在子bean里面设置了parent属性,只是表明在xml配置中会有继承配置的关系
+并不要求实际的java类有继承关系
+
+当一个bean设置abstract为true的时候,意思就是告诉spring不要实例化这个bean出来
+跟实际的java类是否是抽象无关
+
+一般情况如果一个bean的主要的作用是给子bean继承用,其class可以不设置
+-->
+    <bean id="myParent"  abstract="true">
+        <property name="p1" value="p1"/>
+        <property name="p2" value="p2"/>
+    </bean>
+    <bean id="childOne"
+          class="inject.parentchild.ChildOne" parent="myParent">
+        <property name="childOne" value="childOne"/>
+
+    </bean>
+</beans>

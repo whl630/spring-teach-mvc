@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring.xsd">
+
+    <!--这个import就是用来导入其它的配置文件
+    作用类似于复制粘贴,最终的效果其实就可以相当于只有一个文件
+
+
+    -->
+    <import resource="classpath*:spring-mybatis.xml"/>
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="url" value="jdbc:mysql://localhost:3306/demo"/>
+        <property name="password" value="root"/>
+        <property name="username" value="root"/>
+    </bean>
+
+
+    <bean id="employeeService"
+          class="com.dao.EmployeeDaoImpl" autowire="byType">
+
+    </bean>
+
+
+
+
+
+</beans>

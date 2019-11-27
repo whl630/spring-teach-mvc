@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+<!--
+
+    现在这种spring与mybatis的整合方式已经废弃不用
+    缺点:
+    1.每一个dao(mapper)接口的配置都需要单独配置一个MapperFactoryBean
+
+    下面的配置方式,可以不需要mybatis-config文件以及mapper xml文件
+    逻辑如下:
+    1. 有了dataSource配置就知道如何连接数据库
+    2.有了SqlSessionFactoryBean的配置,就可以创建出sqlSessionFactory
+    3.有了MapperFactoryBean就可以给某一个dao接口创建实现类出来
+    4.有了dao的实现类就可以注入到业务类中去
+
+
+这个FactoryBean纯属多余,只是帮大家理解后面的2个FactoryBean的使用
+-->
+    <bean id="dataSource" class="com.spring.DruidDataSourceFactoryBean"/>
+<!--
+这个配置是一个FactoryBean,用来创建SqlSessionFactory
+-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+
+    </bean>
+<!--
+    这个配置用来给某一个特定的Mapper接口(dao)创建出它的实现类
+    sqlSession.getMapper(XxxDao.class);
+    如果项目中有多个Mapper接口,就需要多个MapperFactoryBean的配置
+-->
+    <bean id="employeeDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+       <!--注入要创建实现类的mapper接口就可以得到class信息-->
+        <property name="mapperInterface" value="com.dao.EmployeeDao"/>
+       <!--注入了SqlSessionFactory就可以得到SqlSession-->
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+
+
+    <bean id="employeeService" class="com.dao.EmployeeDaoImpl">
+        <property name="dao" ref="employeeDao"/>
+
+    </bean>
+<!--配置此bean是因为此bean实现了ApplicationContextAware
+被spring管理后会自动往此bean里面注入spring容器对象
+-->
+    <bean class="com.spring.ApplicationContextHolder"/>
+</beans>

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+
+    <!--
+        spring事务写法要点:
+        1.配置一个DataSource
+        2.配置事务管理器,用上dataSource
+        3.配置一个事务通知tx:advice
+            3.1 对某些方法进行事务相关属性配置,比如超时(timeout),事务隔离级别
+            事务传播方面的配置,只读配置
+            3.2 一定要记得关联事务管理器,默认名字是transactionManager
+        4.配置aopconfig,确定对哪些业务类的方法进行事务处理
+        ***事务的处理是针对业务类,不是dao***
+
+    -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="url" value="jdbc:mysql://localhost:3306/demo"/>
+        <property name="password" value="root"/>
+        <property name="username" value="root"/>
+
+    </bean>
+
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <bean id="baseDao" abstract="true">
+        <property name="jdbcTemplate" ref="jdbcTemplate"/>
+    </bean>
+    <bean id="deptDao" class="com.dao.DeptDaoImpl" parent="baseDao">
+        <!--        <property name="jdbcTemplate" ref="jdbcTemplate"/>-->
+    </bean>
+
+    <bean id="empDao" class="com.dao.EmployeeDaoImpl" parent="baseDao">
+        <!--        <property name="jdbcTemplate" ref="jdbcTemplate"/>-->
+    </bean>
+
+    <bean id="deptService" class="com.service.impl.DeptServiceImpl">
+        <property name="employeeDao" ref="empDao"/>
+        <property name="deptDao" ref="deptDao"/>
+    </bean>
+
+    <!--
+    事务管理器:主要用来管理物理连接,事务提交,回滚等功能
+
+   有了事务配置,对我们的dao里面用的连接相关的信息就有了要求:
+   1.因为这个事务管理器是针对DataSource,所以我们的dao必须用"同一个"dataSource
+   2.DataSource获取方法必须是Spring提供的方式
+
+    -->
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!--
+        tx:advice的事务管理器设置:
+        如果你配置的事务管理器的名字就叫做transactionManager,
+        那么transaction-manager就可以不用设置
+    -->
+    <tx:advice id="txAdvisor" transaction-manager="txManager">
+
+        <!--
+        可以配置多个method,一般的配置,查询操作用只读事务,会优化性能
+        它也支持通配符*
+
+        默认情况下,spring会对运行时异常产生回滚,检查异常不回滚
+        如果想针对检查异常也回滚,那么就需要配置rollback-for
+
+        mybatis这种持久层框架,其所有数据库操作的异常都是运行时异常
+        所以method的rollback-for保留默认即可,不需要额外配置
+
+
+        事务传播:transaction propogation:主要指的是先前的事务信息
+        如何影响后开启的事务
+
+        比如
+        service(){ //有事务
+            serviceA();
+            serviceB()
+        }
+
+        serviceA(){ //有事务
+
+        }
+
+        serviceB(){ //有事务
+
+        }
+
+        传播有7个值,默认就是Required
+
+        ****  tx:attributes是必须配置,如果不配置,整个就运行在非事务环境下*****
+
+      ///////////////////////******************源码解析*******************/////////////////
+        tx:attributes是必须配置的,否则在xml这种配置情况下就没有事务相关的配置信息,
+        spring并不提供事务相关属性的默认值,所以会导致方法运行在非事务环境下
+
+        研究方法:点击tx:advice跳转到xsd文件,会看到TransactionInterceptor,在此类的invoke方法中可以看到
+        调用了invokeWithinTransaction方法,在此方法中可以看到获取TransactionAttribute信息时,考虑到了方法.如果没有
+        相关的事务信息配置,就不会创建调用事务管理器的getTransaction方法,就不会有事务.
+
+        1.有配置tx:attributes时会用到NameMatchTransactionAttributeSource,没有配置时会用到AbstractFallbackTransactionAttributeSource
+
+        2.方法调用流:invoke()->invokeWithinTransaction()->createTransactionIfNecessary()
+        ///////////////////////******************源码解析*******************/////////////////
+        -->
+        <tx:attributes>
+            <tx:method name="get*" read-only="true"/>
+            <tx:method name="*" propagation="REQUIRED" rollback-for="com.dao.MyCheckEx"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <aop:config>
+        <aop:pointcut id="serivceTx" expression="execution(* com.service..*.*(..))"/>
+        <aop:advisor advice-ref="txAdvisor" pointcut-ref="serivceTx"/>
+    </aop:config>
+</beans>

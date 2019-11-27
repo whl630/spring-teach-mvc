@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+<!-- 下面的配置顺序与构造函数是一一对应,所以不再需要额外的设置-->
+    <!--<bean id="dbConfig" class="inject.basic.DbConfig">
+        <constructor-arg value="url.."/>
+        <constructor-arg value="root"/>
+        <constructor-arg value="pwd"/>
+
+        <property name="driverClassname" value="driver"/>
+    </bean>-->
+
+
+    <!--
+
+   当下面的构造设置顺序与想复制的类的构造函数顺序不一致时
+   不能仅仅只是设置一个value,还需要额外的信息告诉
+   spring,谁赋值给谁
+
+    -->
+    <bean id="dbConfig" class="inject.basic.DbConfig" >
+        <!--本来这个root应该是赋值给url,但因为加了name=username
+        所以就把root 赋值给了构造函数的第二个参数
+        -->
+        <constructor-arg value="root" name="username"  />
+        <constructor-arg value="pwd" name="password"/>
+        <constructor-arg value="url.." name="url"/>
+
+        <property name="driverClassname" value="driver"/>
+    </bean>
+
+
+    <!--<bean id="dbConfig" class="inject.basic.DbConfig">
+
+        <constructor-arg value="root" index="1" />
+        <constructor-arg value="pwd" index="2"/>
+        <constructor-arg value="url.." index="0"/>
+
+        <property name="driverClassname" value="driver"/>
+    </bean>-->
+
+<!--配置时,一般是java类型对应同样名字的配置元素
+比如List集合,你就用list来配置,Set集合就用set元素配置
+
+集合类型与配置元素类型都会起作用:意思是Set集合类型的元素里面是不能重复
+
+如果你用List元素配置了重复的内容,但Set集合仍然不会有重复
+
+如果你是List集合,但用set元素来配置,就可以让此List集合内部没有重复
+
+
+
+
+-->
+    <bean id="addr" class="inject.basic.Address">
+        <property name="province" value="gd"></property>
+        <property name="city" value="zhuhai"/>
+    </bean>
+    <bean id="userInfo" class="inject.basic.UserInfo">
+        <property name="name" value="aaaa"/>
+       <!-- <property name="address" ref="addr"/>-->
+        <!--下面的配置方式叫做inner bean(内部bean)
+
+            只是给address属性使用,无法通过getBean方式得到这个对象
+        -->
+        <property name="address" >
+            <bean class="inject.basic.Address" />
+        </property>
+        <property name="hobbyList" >
+            <list>
+                <value>football</value>
+                <value>basketball</value>
+                <value>basketball</value>
+            </list>
+        </property>
+        <property name="xueLi">
+            <list>
+                <value>chu zhong</value>
+                <value>gao zhong</value>
+                <value>gao zhong</value>
+            </list>
+        </property>
+        
+        <property name="xueFen">
+            <map>
+
+                <entry key="yuwen" value="95"/>
+                <entry key="shuxue" value="100"/>
+            </map>
+        </property>
+        <!--如果用props配置,值只能是字符串类型-->
+        <property name="properties">
+            <props>
+               <prop key="javaT">111</prop>
+               <prop key="netT">yongguang</prop>
+            </props>
+        </property>
+
+        <property name="addressList">
+
+            <list>
+                <ref bean="addr"/>
+                <bean class="inject.basic.Address">
+                    <property name="city" value="ganzhou"/>
+                    <property name="province" value="jiangxi"/>
+                </bean>
+            </list>
+        </property>
+
+    </bean>
+</beans>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd"
+      default-init-method="init" default-destroy-method="destroy">
+
+
+    <!--
+    如果没有spring框架
+    写代码的一个规范是构造函数里面不要写很复杂的代码
+    如果有这种情况,建议是把这些代码抽取到一个独立的方法中去
+    这个方法一般叫init这种名字
+
+    按照以前的做法就必须在构造函数中调用这个init方法
+
+    有了spring之后,就可以直接设置一下就会让init被执行
+    init执行就是在对象创建出来后自动得到执行
+
+    -->
+
+    <!--
+    如果是singleton,init只会执行一次
+    prototype的话就会反复调用
+
+
+    beans这里可以通过default-init-method
+    以及default-destroy-method来设置全局的初始化方法与销毁方法
+
+    全局设置之后,spring管理的所有bean的初始化与销毁都不需要再进行设置
+
+    如果某一个bean也设置了init-method或者destroy-method
+    就会覆盖全局的设置
+    -->
+    <bean id="daoLife"
+          class="lifecycle.EmployeeDaoLifeCycle"
+          init-method="init2"
+          destroy-method="destroy"
+    />
+
+
+    <bean id="daoLife2"
+          class="lifecycle.EmployeeDaoLifeCycle2"
+    >
+    </bean>
+
+
+    <!--
+    实例化(instantiation)与初始化(initialization)的问题
+
+    实例化:指的就是对象的创建,就是new一个对象
+    其过程是:
+    1.静态字段
+    2.静态代码块(这两个是在类第一次加载才执行)
+    3.实例代码块
+    4.构造函数
+
+    初始化:指的是对象已经实例化完成之后,还要干一些必要的事情
+    在非spring的环境下,一般是写一个init方法,并且在构造函数被调用
+
+    在spring的环境下,初始化方法有下面这几种设置方法
+    bean 的init-method
+    beans 的default-init-method
+    bean实现接口Initializable接口(afterPropertiesSet)
+
+    -->
+
+</beans>

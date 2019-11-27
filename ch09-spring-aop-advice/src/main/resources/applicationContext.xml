@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+<!--
+1.before:前置通知,在连接点方法之前执行,而且不能控制连接点是否执行
+2.after:后置通知也叫最终通知,意思就是连接点方法只要执行(不管是否有错误),它
+        都会得到执行
+3.after-return:返回通知,连接点正常执行(不报错)时才会执行这个通知.
+4.throwing:异常通知:连接点方法抛出异常时才会得到执行.这个通知不能处理异常
+只能得到异常信息.异常通知如果想把目标方法抛出的异常传递给通知方法
+只需要在异常通知的throwing属性设置的值等于通知方法的参数名就可以.
+
+当异常通知方法没有异常类型作为参数时,潜台词就是目标方法抛出任何异常,通知都会得到执行
+
+当异常通知方法"有"异常类型作为参数是,潜台词是只有目标方法抛出的异常是参数指定类型
+的异常或是子类型时,此通知方法才会得到执行
+
+5.around通知:环绕通知,环绕通知是最强的通知类型,它可以完全取代上面的4种
+也可以进行异常的捕获处理,也可以组织目标方法执行
+
+
+-->
+
+<bean id="logImpl" class="com.LogImpl"/>
+<bean id="logImpl2" class="com.LogImpl2"/>
+<bean id="employeeService" class="com.service.EmployeeServiceImpl"/>
+<aop:config>
+    <!--放在这里的表达式,意味着可以被多个切面类引用-->
+    <aop:pointcut id="myPointcut1" expression="execution(* com.service.EmployeeServiceImpl.*(..))"/>
+    <aop:aspect ref="logImpl">
+
+     <!--   <aop:before method="before" pointcut-ref="myPointcut1" />-->
+       <!-- <aop:after method="after" pointcut-ref="myPointcut1"/>-->
+        <!--<aop:after-returning method="afterReturn" pointcut-ref="myPointcut1"/>-->
+    <!--    <aop:after-throwing method="throwAdvice" throwing="re"
+                            pointcut-ref="myPointcut1"/>
+-->
+        <aop:around method="aroundAdvice"  pointcut-ref="myPointcut1"/>
+    </aop:aspect>
+
+    <!--<aop:aspect ref="logImpl2">
+        &lt;!&ndash;在aspect内部编写的表达式建议是只给这个切面内使用,虽然可以给别的切面类
+        使用,但不建议
+        在某个通知属性里面使用pointcut属性配置表达式就是意味只给这个通知使用
+        &ndash;&gt;
+        &lt;!&ndash;<aop:pointcut id="myPointcut2" expression="execution(* com.service.EmployeeServiceImpl.*(..))"/>&ndash;&gt;
+        <aop:before method="before" pointcut="" />
+    </aop:aspect>-->
+</aop:config>
+
+</beans>

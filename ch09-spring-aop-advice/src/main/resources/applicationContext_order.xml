@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+
+
+<bean id="logImpl" class="com.LogImpl"/>
+<bean id="logImpl2" class="com.LogImpl2"/>
+<bean id="employeeService" class="com.service.EmployeeServiceImpl"/>
+<aop:config>
+<!--
+
+    在同一个切面中,配置的同类型通知,其顺序官方没有明确的说明
+
+    就不能认为以配置的顺序为准,
+
+    但是如果是在不同的切面中配置,可以通过order属性来准确的控制其执行顺序
+
+    数字小的先执行.
+-->
+    <aop:pointcut id="myPointcut1" expression="execution(* com.service.EmployeeServiceImpl.*(..))"/>
+    <aop:aspect ref="logImpl" order="3">
+       <!-- <aop:before method="before2" pointcut-ref="myPointcut1"/>-->
+       <!-- <aop:before method="before" pointcut-ref="myPointcut1"/>-->
+
+        <aop:around method="aroundAdvice" pointcut-ref="myPointcut1"/>
+    </aop:aspect>
+
+
+    <aop:aspect ref="logImpl" order="4">
+       <!-- <aop:before method="before2" pointcut-ref="myPointcut1"/>-->
+      <!--  <aop:before method="before" pointcut-ref="myPointcut1"/>-->
+        <aop:around method="aroundAdvice2" pointcut-ref="myPointcut1"/>
+    </aop:aspect>
+
+</aop:config>
+
+</beans>

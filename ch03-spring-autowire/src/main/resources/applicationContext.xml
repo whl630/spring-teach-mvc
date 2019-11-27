@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd"
+default-autowire-candidates="*dao" default-autowire="byType">
+
+    <!--
+        关于自动装配(autowire)的理解
+        1.启动spring容器
+        2.扫描xml文件.
+        3.spring就知道所有被它管理的bean
+        4.每个bean,spring通过反射是不是都知道
+        其类型,以及构造函数,以及所有的属性(property)
+        5.因为bean的作用域是singleton,所以spring要创建出
+        对象,创建对象包含实例化和初始化
+         5.1 实例化就是调用构造函数,如果构造函数有依赖
+         ,spring就会尝试解决掉这个依赖是什么东西
+         5.2 初始化:所有的属性,spring都尝试帮你注入值进来
+        6.spring尝试给某个bean所有依赖的东西,帮你注入进来
+        7.如果你配置了自动装配,那么spring就帮你找一个合适的
+        8.如何找呢? 需要依据自动装配类型的设置,autowire的值
+            8.1 byType:因为你的Service类依赖的类型是UserDao
+                spring又知道所有被它管理的UserDao bean配置只有一个
+                所以就自动帮你注入这一个.
+                如果找到多个:报错
+
+             8.2 byName:找到service类里面有一个属性名叫dao
+             找所有被管理bean的名字为dao的,就帮你注入.
+            如果找到的bean id值为dao的类型不符合要求,也会报错
+
+如果有多个bean符合自动装配
+可以通过在所有符合条件的被装配bean上进行设置来解决
+1.在想被注入的bean上设置primary=true,就表示用这个
+2. 在不想被注入的bean上设置autowire-candidate=false
+
+还可以在beans这个根元素上,配置default-autowire-type来设定
+一个全局的自动装配类型,这样就不需要在每一个bean上进行设置了
+
+beans上的default-autowire-candidates =设置作为候选baen的名字模式
+多个之间用逗号分隔,比如*dao这个名字,意思就是以dao结尾的bean 的名字
+    -->
+
+
+
+  <!--  <bean id="dao" class="autowire.MyDao"></bean>
+
+作业: 笔记做到ioc(跟上讲课的进度)
+-->
+
+    <bean id="dao" class="autowire.UserDaoImpl" ></bean>
+    <bean id="userDao2" class="autowire.UserDaoImpl2"  ></bean>
+    <bean id="userService"
+          class="autowire.UserServiceImpl"
+          >
+
+    </bean>
+
+</beans>

@@ -1,0 +1,16 @@
+<configuration debug="true">
+   <!-- # https://www.cnblogs.com/heliusKing/p/11192263.html-->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- encoders are  by default assigned the type
+             ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
+        <encoder>
+            <pattern>%logger{36}:[%M{36}] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="STDOUT" />
+    </root>
+    <logger name="org.springframework" level="trace"/>
+
+</configuration>

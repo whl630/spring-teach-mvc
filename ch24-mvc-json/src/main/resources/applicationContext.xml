@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       https://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <context:component-scan base-package="com.controller"/>
+    <mvc:annotation-driven >
+
+        <!--
+       1. 当你要调整HttpMessageConverter的时候,就是在这里进行配置
+       2. 如果配置register-defaults为true(默认值就是true),就表示默认会注册spring mvc
+            自带的许多消息转换器
+       3. 如果你自己配置了一个消息转换器,那么会以你配置的为准,就不会再用自带的那一个.
+
+        -->
+            <mvc:message-converters register-defaults="true">
+                <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                    <property name="objectMapper">
+                        <bean class="com.fasterxml.jackson.databind.ObjectMapper">
+                            <property name="dateFormat" >
+                                <bean class="java.text.SimpleDateFormat">
+                                    <constructor-arg name="pattern" value="yyyy-MM-dd"/>
+                                </bean>
+                            </property>
+                        </bean>
+
+                    </property>
+                </bean>
+            </mvc:message-converters>
+    </mvc:annotation-driven>
+
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="suffix" value=".jsp"/>
+        <property name="prefix" value="/WEB-INF/views/"/>
+    </bean>
+
+
+    <mvc:resources mapping="/static/**" location="classpath:/static/"/>
+</beans>

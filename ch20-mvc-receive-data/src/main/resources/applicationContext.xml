@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <context:component-scan base-package="com.controller"/>
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="suffix" value=".jsp"/>
+        <property name="prefix" value="/WEB-INF/views/"/>
+    </bean>
+    <!--
+    在spring中,像annotation-driven这种东西,比如mvc-annotation-driven
+    tx:annotation-driven主要是增加对注解的支持.以及往spring容器中注入普通的bean
+    以及注入BFPP(BeanFactoryPostProcessor)或BPP(BeanPostProcessor)(这2个东西是用来增加spring功能的类型)
+
+    一般会有对应的Enable开头的注解完成xml这个配置类似的功能
+    比如:tx:annotation-driven->EnableTransactionManagement
+    -->
+   <!-- <mvc:annotation-driven />-->
+    <!--
+    mvc:annotation-driven这个设置,处理对转换服务进行设定以外,还可以对校验进行设置
+
+    详细情况可以参考EnableWebMvc注解的注释
+    -->
+  <!--  <mvc:annotation-driven conversion-service="conversionService"></mvc:annotation-driven>
+
+    &lt;!&ndash;
+        配置一个转换服务的FactoryBean,用来创建一个转换服务
+    &ndash;&gt;
+    <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+        &lt;!&ndash;往转换服务里面添加Formatter &ndash;&gt;
+        <property name="formatters">
+            <bean class="com.formatter.EmpFormatter"/>
+        </property>
+    </bean>-->
+</beans>

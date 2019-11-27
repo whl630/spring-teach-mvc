@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+
+
+    <bean id="paramAspect" class="com.param.ParamAspect"/>
+
+    <bean id="employeeService" class="com.EmployeeServiceImpl"/>
+
+    <!--
+        1. 切点表达式中的args与execution都叫切点指示器(PointCut Designer)
+        2.args是用来表示查找有多少个参数,args(x),表示找到只有一个参数
+        3.args里面的名字相当于一个变量名,在调用目标方法时,依据调用目标方法
+        传递的数据,给这个变量名赋值
+        4.通知执行的时候,需要参数,那么这些参数的值就通过从变量里面找,默认就是找同名的
+        所以在不设置arg-names的时候,就会找args()表达式里面与通知方法同名的数据
+        5.但是4步的做法会导致切点表达式与通知方法的形参名耦合一起,所以spring提供了一个灵活的机制
+        就是在配置通知时,利用arg-names指定"别名"
+        6.args-names指定了别名后就以别名为准,那么就会导致args表达式里面就需要与args-names对应起来
+
+
+     总而言之: 想让通知方法获取到传递给目标方法的参数需要这么做:
+     1. args表达式里面的名字与通知方法的名字与个数匹配即可,此时不需要配置通知的arg-names
+     配置代码如下:
+      <aop:pointcut id="myPointcut1" expression="execution(* com.service.EmployeeServiceImpl.*(..)) and args(m,n)"/>
+      <aop:before method="before2" pointcut-ref="myPointcut1" />
+
+     2. args表达式里面的名字任意,此时就需要在通知方法的arg-names配置得与args表达式名字一样
+     此时这两者配置的名字不需要与通知方法的形参名一样.
+     <aop:pointcut id="myPointcut1" expression="execution(* com.service.EmployeeServiceImpl.*(..)) and args(x1,y1)"/>
+      <aop:before method="before2" pointcut-ref="myPointcut1" arg-names="x1,y1"/>
+
+      3.由于所有的通知方法都可以添加JoinPoint类型作为第一个参数,而这个类型
+      是可以很方便的得到参数,你也可以采用这种方式,这样就不需要上面的2种方法来达成同样的目的
+
+
+          在官方文档中有这么一段:
+
+    @Before("com.xyz.myapp.SystemArchitecture.dataAccessOperation() && args(account,..)")
+    public void validateAccount(Account account) {
+        // ...
+    }
+    The args(account,..) part of the pointcut expression serves two purposes.
+    First, it restricts matching to only those method executions where the method
+     takes at least one parameter, and the argument passed to that parameter is
+     an instance of Account.
+
+     Second, it makes the actual Account object available to the advice
+     through the account parameter.
+
+    上面的话中,表明了args指定的参数类型可以靠使用它的通知方法参数类型来确定!
+
+    args本身自己就有两种用法,一种是指定类型:args(int,int),另外一种就是像上面那样指定名字.
+
+    -->
+    <aop:config>
+
+        <aop:pointcut id="myPointcut1" expression="execution(* com.EmployeeServiceImpl.*(..)) and args(x1,y1)"/>
+        <aop:aspect ref="paramAspect" order="3">
+            <!--<aop:before method="before" pointcut-ref="myPointcut1" arg-names="x1,y1"/>-->
+            <!--
+
+            -->
+            <aop:before method="before2" pointcut-ref="myPointcut1" arg-names="x1,y1"/>
+
+
+            <!-- <aop:around method="aroundParam" pointcut-ref="myPointcut1"/>-->
+        </aop:aspect>
+
+
+    </aop:config>
+
+</beans>

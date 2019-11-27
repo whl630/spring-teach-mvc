@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--
+        下面的配置等价于new DruidDataSource();
+        setUserName
+        setPassword
+        setUrl()
+    -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="password" value="root"></property>
+        <property name="username" value="root"/>
+        <property name="url" value="jdbc:mysql://localhost:3306/demo"/>
+    </bean>
+
+    <bean id="queryRunner" class="org.apache.commons.dbutils.QueryRunner">
+        <constructor-arg ref="dataSource"></constructor-arg>
+        <constructor-arg value="true"/>
+    </bean>
+    <bean id="employeeDao" class="com.dao.impl.EmployeeDaoImpl">
+        <property name="queryRunner" ref="queryRunner"/>
+    </bean>
+    <bean id="employeeService" class="com.dao.EmployeeDaoImpl">
+        <property name="dao" ref="employeeDao"/>
+    </bean>
+</beans>

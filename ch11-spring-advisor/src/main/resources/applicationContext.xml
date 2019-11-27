@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!--
+      Advisor:通知器或者统治者.有某个或某些特定通知类型的切面类
+
+      特定通知是靠此类实现某些接口来表示的.
+      spring有如下接口来表明不同的通知类型
+      MethodBeforeAdvice:前置通知
+      AfterReturningAdvice:返回通知
+      ThrowsAdvice:异常通知
+      MethodInterceptor:环绕通知
+      注意:没有最终通知(after通知)
+
+
+advisor这种写法已经不推荐,主要是老版本的spring的一种配置方式
+并且spring的事务配置方式用到了这种方法.
+
+
+      Advice:通知,代表一种注入方式,比如前置,后置
+
+
+    -->
+
+    <bean id="myAdvisor" class="com.advisor.MyAdvisor"/>
+    <bean id="emp" class="com.dao.EmployeeDaoImpl"/>
+    <aop:config>
+
+        <aop:pointcut id="myPointcut"
+                      expression="execution(* com.service..*.*(..))"/>
+
+        <aop:advisor advice-ref="myAdvisor"
+                     pointcut-ref="myPointcut"/>
+    </aop:config>
+</beans>

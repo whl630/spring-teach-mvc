@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--
+        spring helloworld的做法
+        1.添加spring-context的依赖即可
+        2.创建一个spring xml配置文件(元数据)
+            在此文件里面通过一个个的bean来告诉spring
+            管理哪些类,这个类必须是可以实例化的,所以不能
+            是接口,抽象类等等
+
+        3.创建ApplicationContext对象,一般是子类
+        ClasspathXmlApplicationContext.实例化
+        的时候传递配置文件名
+        4.getBean(id:配置文件bean元素的id)
+
+*****
+哪些类应该被spring管理?
+dao,service,部分工具类可以被spring管理
+但是servlet是一定不能被spring管理的.
+实体类,一般不被spring管理,从技术角度是可以被spring管理的
+
+
+spring 管理bean的作用域(scope)
+作用域就是:你的脸有多大,你说的话有多大的效果
+在spring中作用域其实指的就是被spring管理的bean的存活时间
+spring的作用域有4种
+1.prototype:(原型):每次getbean的时候都重新创建一个新的对象
+2.singleton:(单例):此作用域类型的bean,在spring容器启动时已经被创建,
+    每次getbean的时候,直接从容器中获取即可
+3.request:(请求):request与session作用域都是在web环境下才有效
+被spring管理的bean,它的生存期就是在一个完整的请求周期里面
+4.session(会话):就是bean的作用范围是一个完整的session
+不同人有不同的会话,互相不干扰.
+
+
+默认情况下,被spring管理的bean的作用域是singleton
+用得最多的就是1,2
+
+singleton作用域的bean,其实例是在容器启动时创建
+以后就不再创建
+
+prototype作用的bean是在每次getBean的时候都反复创建
+bean的实例出来.
+
+
+
+
+
+
+
+
+    -->
+    <bean id="first" class="hello.EmployeeDao" scope="prototype"></bean>
+</beans>

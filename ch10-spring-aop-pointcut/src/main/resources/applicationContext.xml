@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!--
+    https://docs.spring.io/spring/docs/5.2.0.RELEASE/spring-framework-reference/core.html#aop-pointcuts
+
+https://blog.csdn.net/ABCD898989/article/details/50809321
+
+https://juejin.im/entry/5b9f69266fb9a05cfb3da610 有切点表达式源码解析
+spring aop只针对方法进行aop代理,不想aspectj联盟搞的aop实现
+这个aop联盟的实现功能比spring aop要强大,比如可以针对字段进行
+切面编程.
+
+1.切点指示器(PCD:PointCutDesigner):指示器可以理解为一种描述
+找到方法的方式.spring支持的切点指示器有如下几个:
+ 1.1 execution:用来匹配连接点方法的,用的最多的一个指示器
+ 1.2 within:英文的意思是:在某某之内,一般就是指的是在"某些"类之内
+ within(com.service.*)就是指com.service包下的所有类的方法进行aop代理
+ 指定一个父类是不生效的.
+ 指的执行的方法声明在了指定的类型里
+ the execution of a method declared within a matching type when using Spring AOP
+ 1.3 this:指的就是动态代理生成的对象,这种指示器一般表示某个动态代理
+ 对象是某个类型,比如this(com.service.EmployeeService),就表示
+ 动态代理对象是EmployeeService的实现类
+ 1.4 target:动态生成代理类是指定类型的实例
+ :where the target object (application object being proxied)
+is an instance of the given type.
+ 1.5 args:此指示器是在方法的参数层面来描述,比如args(integer,String)就表示
+ 所有有2个参数,并且类型分别是integer,string的方法
+ 1.6 @target: 正在执行的对象的类上有指定的注解
+ where the class of the executing object has an annotation of the given type.
+ 1.7 @args:与arg类似,只不过是表明参数上有特定注解的
+ 1.8 @Within:与within类似,只不过是表明类上有特定的注解修饰
+ 执行的方法所声明的类型上有指定的注解
+ the execution of methods declared in types with the given annotation when using Spring AOP
+ 1.9 @annotation:指的是连接点方法上有特定注解,不是指方法所属的类上
+ 1.10 bean:这个指示器不是aop联盟的标准,是spring自己提供的
+ 指示特定bean的名字的指示器
+
+注意:@Inherited修饰的注解修饰在接口上,是不会被此接口的实现类所继承的,只有注解修饰在父类
+上才会被继承
+
+2 指示器的逻辑运算符
+并且:and(&&)
+或者:or(||)
+非:not(!)
+
+3 execution指示器
+不同的指示器,表达式的写法的模式可能是不一样的额,
+    它的编写格式:
+   execution(modifiers-pattern? ret-type-pattern declaring-type-pattern?name-pattern(param-pattern)
+                throws-pattern?)
+
+     上面格式的含义如下:
+     3.1 ?:表示有或者没有  ,没有问号就表示必须写
+     3.2 modifiers-pattern:修饰符模式
+        ret-type-pattern:返回类型模式
+        declaring-type-pattern:声明类型模式
+        name-pattern:指的就是方法的名字模式
+        param-pattern:指的就是方法参数的模式
+        throws-pattern:指的是方法抛出的异常的模式
+
+    其中三个模式必不可少:返回类型,方法名,方法参数
+   通配符:
+   *:表示任意名字
+   ..:任意段的任意字符
+
+常见的例子:
+1.  execution(public * *(..)):找到所有的公有方法
+2.  execution(* *get(..)):
+3.  public * com.service.emp.EmployeeService+.*(..))
+ + 表示接口的所有方法以及此接口实现类自己的方法都会被aop代理
+4. public * com.service..*.*(..)) 表示com.service包以及子孙包下
+5. within(  com.service..*) 表示com.service包以及子孙包下的所有类,
+写法与execution指示器是不同的,不需要写返回类型
+6. target(  com.service.emp.impl.EmployeeServiceImpl) 给EmployeeServiceImpl
+进行aop代理,不能使用通配符.表达式中指定父类型或者接口时是可以的.
+7. this(com.service.emp.impl.EmployeeServiceImpl):给EmployeeServiceImpl类
+进行aop代理.写法与target类似.
+意思是:如果能代理成功,那么生成的代理类是表达式里面设定的类型的实例
+8. bean(emp)表示给emp这个bean进行aop代理
+
+
+    -->
+
+    <bean id="emp" class="com.service.emp.impl.EmployeeServiceImpl"/>
+    <bean id="emp2" class="com.service.emp.impl.EmployeeServiceImpl2"/>
+    <bean id="log" class="com.log.LogAspect"/>
+
+    <aop:config proxy-target-class="true">
+
+        <aop:pointcut id="myPointcut"
+                      expression="@annotation(com.MyAnno)"/>
+        <aop:aspect ref="log">
+            <aop:before method="before" pointcut-ref="myPointcut"/>
+        </aop:aspect>
+    </aop:config>
+
+
+</beans>
